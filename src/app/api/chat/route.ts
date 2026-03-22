@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { ChatRequest } from "@/types";
 
@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
-    // Validate session belongs to this user
     const { data: chatSession, error: sessionError } = await supabaseAdmin
       .from("chat_sessions")
       .select("id")
@@ -56,13 +55,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    // Build OpenAI-compatible message history (Groq uses same format)
     const recentHistory = history.slice(-10).map((m) => ({
       role: m.role as "user" | "assistant",
       content: m.content,
     }));
 
-    // Call Groq API (free, fast, OpenAI-compatible)
     const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -91,7 +88,6 @@ export async function POST(req: NextRequest) {
       groqData.choices?.[0]?.message?.content ||
       "Sorry, I could not generate a response.";
 
-    // Persist both messages to DB in parallel
     const [, assistantMsg] = await Promise.all([
       supabaseAdmin.from("messages").insert({
         session_id,
@@ -111,7 +107,6 @@ export async function POST(req: NextRequest) {
         .single(),
     ]);
 
-    // Auto-title session from first message
     const { data: msgCount } = await supabaseAdmin
       .from("messages")
       .select("id")
