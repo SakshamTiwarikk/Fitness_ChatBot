@@ -2,8 +2,8 @@
 
 A full-stack AI-powered fitness chatbot for beginners, built with Next.js 14, TypeScript, Supabase, and Groq (LLaMA 3.3 70B).
 
-**Live Demo:** [form-fitness.vercel.app](https://form-fitness.vercel.app)  
-**GitHub:** [github.com/yourusername/form-fitness](https://github.com/yourusername/form-fitness)
+**Live Demo:** https://fitness-chat-bot-seven.vercel.app/login 
+
 
 ---
 
